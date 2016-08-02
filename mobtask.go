@@ -74,7 +74,7 @@ func keepActivityAlive(id int) {
 		}
 	}
 	db.Close()
-	t := time.Now().Unix()
+	t := time.Now()
 	wait = 0
 	fmt.Printf("%d", t)
 	for {
@@ -103,7 +103,7 @@ func keepActivityAlive(id int) {
 					}
 				}
 			}
-			t = time.Now().Unix()
+			t = time.Now()
 			if wait > 5 {
 				wait = 60
 			} else {
