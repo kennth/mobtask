@@ -20,6 +20,9 @@ func main() {
 	//fmt.Println(*id)
 	switch {
 	case *cmd == -1:
+		var wait float64
+		wait = 1.1
+		fmt.Printf("%f", wait)
 	case *cmd == 0:
 		genRunScript()
 	case *cmd == 1:
@@ -47,6 +50,7 @@ func keepActivityAlive(id int) {
 	var endphone int64
 	var phoneid string
 	var mainact string
+	var packname string
 	var wait float64
 	if rows.Next() {
 		err = rows.Scan(&worker, &activity, &hook)
@@ -56,18 +60,18 @@ func keepActivityAlive(id int) {
 		phoneid = worker[strings.Index(worker, " ")+1:]
 		endphone, err = strconv.ParseInt(phoneid, 10, 0)
 		fmt.Println(startphone)
-
+		packname = activity[0:strings.Index(activity, "/")]
 		if len(hook) == 0 {
 			mainact = activity[strings.Index(activity, "/")+1:]
 		} else if strings.Index(hook, ".") == 1 {
-			mainact = activity[0:strings.Index(activity, "/")] + hook
+			mainact = packname + hook
 		} else {
 			mainact = hook
 		}
 	}
 	db.Close()
 	t := time.Now()
-	fmt.Println(t)
+	//fmt.Println(t)
 	wait = 0
 	for {
 		if time.Now().Sub(t).Seconds() >= wait {
@@ -82,7 +86,13 @@ func keepActivityAlive(id int) {
 					if !strings.EqualFold(curhook, mainact) {
 						fmt.Println(curhook)
 						//fmt.Println(mainact)
-						f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
+						f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
+						if err == nil {
+							fmt.Println(string(f))
+						} else {
+							fmt.Println(err.Error())
+						}
+						f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
 						if err == nil {
 							fmt.Println(string(f))
 						} else {
@@ -90,7 +100,7 @@ func keepActivityAlive(id int) {
 						}
 						wait = 1
 					} else {
-						fmt.Println(phoneid + ":" + mainact + " is on top!")
+						//fmt.Println(phoneid + ":" + mainact + " is on top!")
 						wait = wait + 1
 					}
 				}
@@ -101,7 +111,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Println(wait)
+			fmt.Printf("%d:%d", id, int(wait))
 			fmt.Println(t)
 		}
 		time.Sleep(time.Second * 1)
