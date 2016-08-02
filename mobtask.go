@@ -20,9 +20,8 @@ func main() {
 	//fmt.Println(*id)
 	switch {
 	case *cmd == -1:
-		var wait float64
-		wait = 1.1
-		fmt.Printf("%f", wait)
+
+		fmt.Printf("%s", time.Now())
 	case *cmd == 0:
 		genRunScript()
 	case *cmd == 1:
@@ -111,8 +110,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Printf("%d:%d", id, int(wait))
-			fmt.Println(t)
+			fmt.Printf("%d : %ds || %s", id, int(wait), t)
 		}
 		time.Sleep(time.Second * 1)
 	}
