@@ -20,7 +20,14 @@ func main() {
 	//fmt.Println(*id)
 	switch {
 	case *cmd == -1:
-
+		t := time.Now()
+		fmt.Println(t)
+		for {
+			if time.Now().Sub(t).Seconds() >= 1 {
+				fmt.Println(time.Now())
+				break
+			}
+		}
 	case *cmd == 0:
 		genRunScript()
 	case *cmd == 1:
@@ -69,9 +76,9 @@ func keepActivityAlive(id int) {
 	db.Close()
 	t := time.Now().Unix()
 	wait = 0
-	fmt.Printf(t)
+	fmt.Printf("%d", t)
 	for {
-		if time.Now().Unix()-t > wait {
+		if time.Now().Sub(t).Seconds() >= wait {
 			for i := startphone; i <= endphone; i++ {
 				phoneid = "E3CD20" + strconv.Itoa(int(i))
 				f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell dumpsys activity | grep \"mFocusedActivity\"").Output()
@@ -102,7 +109,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Printf(t)
+			fmt.Printf("%d.%d", wait, t)
 		}
 	}
 
