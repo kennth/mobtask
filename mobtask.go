@@ -109,7 +109,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Printf("%f%s", wait, t)
+			fmt.Printf("%f%t", wait, t)
 		}
 		time.Sleep(time.Secone * int(wait))
 	}
