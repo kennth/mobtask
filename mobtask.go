@@ -58,7 +58,6 @@ func keepActivityAlive(id int) {
 		startphone, err = strconv.ParseInt(phoneid, 10, 0)
 		phoneid = worker[strings.Index(worker, " ")+1:]
 		endphone, err = strconv.ParseInt(phoneid, 10, 0)
-		fmt.Println(startphone)
 		packname = activity[0:strings.Index(activity, "/")]
 		if len(hook) == 0 {
 			mainact = activity[strings.Index(activity, "/")+1:]
@@ -70,7 +69,6 @@ func keepActivityAlive(id int) {
 	}
 	db.Close()
 	t := time.Now()
-	//fmt.Println(t)
 	wait = 0
 	for {
 		if time.Now().Sub(t).Seconds() >= wait {
@@ -110,7 +108,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Printf("%d : %ds || %s", id, int(wait), t)
+			fmt.Printf("%d : %ds || %s\n", id, int(wait), t)
 		}
 		time.Sleep(time.Second * 1)
 	}
