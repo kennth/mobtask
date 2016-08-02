@@ -69,6 +69,7 @@ func keepActivityAlive(id int) {
 	db.Close()
 	t := time.Now().Unix()
 	wait = 0
+	fmt.Printf("%d,%d", wait, t)
 	for {
 		if time.Now().Unix()-t > wait {
 			for i := startphone; i < endphone; i++ {
@@ -90,7 +91,7 @@ func keepActivityAlive(id int) {
 						}
 						wait = 1
 					} else {
-						fmt.Println(mainact + " is on top!")
+						fmt.Println(phoneid + ":" + mainact + " is on top!")
 						wait = wait + 1
 					}
 				}
@@ -101,6 +102,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
+			fmt.Printf("%d,%d", wait, t)
 		}
 	}
 
