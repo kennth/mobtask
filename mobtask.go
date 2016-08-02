@@ -55,7 +55,7 @@ func keepActivityAlive(id int) {
 	var endphone int64
 	var phoneid string
 	var mainact string
-	var wait int64
+	var wait float64
 	if rows.Next() {
 		err = rows.Scan(&worker, &activity, &hook)
 		CheckErr(err)
@@ -109,7 +109,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Printf("%d.%d", wait, t)
+			fmt.Printf("%f.%d", wait, t)
 		}
 	}
 
