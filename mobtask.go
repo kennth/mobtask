@@ -69,10 +69,10 @@ func keepActivityAlive(id int) {
 	db.Close()
 	t := time.Now().Unix()
 	wait = 0
-	fmt.Printf("%d,%d", wait, t)
+	fmt.Printf(t)
 	for {
 		if time.Now().Unix()-t > wait {
-			for i := startphone; i < endphone; i++ {
+			for i := startphone; i <= endphone; i++ {
 				phoneid = "E3CD20" + strconv.Itoa(int(i))
 				f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell dumpsys activity | grep \"mFocusedActivity\"").Output()
 				//CheckErr(err)
@@ -102,7 +102,7 @@ func keepActivityAlive(id int) {
 			} else {
 				wait = 1
 			}
-			fmt.Printf("%d,%d", wait, t)
+			fmt.Printf(t)
 		}
 	}
 
