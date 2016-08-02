@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -18,6 +19,8 @@ func main() {
 	//fmt.Println(*cmd)
 	//fmt.Println(*id)
 	switch {
+	case *cmd == -1:
+
 	case *cmd == 0:
 		genRunScript()
 	case *cmd == 1:
@@ -45,6 +48,7 @@ func keepActivityAlive(id int) {
 	var endphone int64
 	var phoneid string
 	var mainact string
+	var wait int64
 	if rows.Next() {
 		err = rows.Scan(&worker, &activity, &hook)
 		CheckErr(err)
@@ -61,30 +65,44 @@ func keepActivityAlive(id int) {
 		} else {
 			mainact = hook
 		}
-		for i := startphone; i < endphone; i++ {
-			phoneid = "E3CD20" + strconv.Itoa(int(i))
-			f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell dumpsys activity | grep \"mFocusedActivity\"").Output()
-			//CheckErr(err)
-			if err == nil {
-				curactivity = string(f)
-				curhook = curactivity[strings.Index(curactivity, "/")+1 : len(curactivity)-3]
-				//fmt.Println("adb -s " + phoneid + " shell am start -n " + activity)
-				if !strings.EqualFold(curhook, mainact) {
-					fmt.Println(curhook)
-					fmt.Println(mainact)
-					f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
-					if err == nil {
-						fmt.Println(string(f))
+	}
+	db.Close()
+	t := time.Now().Unix()
+	wait = 0
+	for {
+		if time.Now().Unix()-t > wait {
+			for i := startphone; i < endphone; i++ {
+				phoneid = "E3CD20" + strconv.Itoa(int(i))
+				f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell dumpsys activity | grep \"mFocusedActivity\"").Output()
+				//CheckErr(err)
+				if err == nil {
+					curactivity = string(f)
+					curhook = curactivity[strings.Index(curactivity, "/")+1 : len(curactivity)-3]
+					//fmt.Println("adb -s " + phoneid + " shell am start -n " + activity)
+					if !strings.EqualFold(curhook, mainact) {
+						fmt.Println(curhook)
+						//fmt.Println(mainact)
+						f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
+						if err == nil {
+							fmt.Println(string(f))
+						} else {
+							fmt.Println(err.Error())
+						}
+						wait = 1
 					} else {
-						fmt.Println(err.Error())
+						fmt.Println(mainact + " is on top!")
+						wait = wait + 1
 					}
-				} else {
-					fmt.Println(mainact + " is on top!")
 				}
+			}
+			t = time.Now().Unix()
+			if wait > 5 {
+				wait = 60
+			} else {
+				wait = 1
 			}
 		}
 	}
-	db.Close()
 
 }
 
