@@ -81,8 +81,7 @@ func keepActivityAlive(id int) {
 					curhook = curactivity[strings.Index(curactivity, "/")+1 : len(curactivity)-3]
 					//fmt.Println("adb -s " + phoneid + " shell am start -n " + activity)
 					if !strings.EqualFold(curhook, mainact) {
-						fmt.Println(curhook)
-						//fmt.Println(mainact)
+						fmt.Println(phoneid + ":" + curhook + " || " + mainact)
 						f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
 						if err == nil {
 							fmt.Println(string(f))
