@@ -105,7 +105,7 @@ func keepActivityClean(id int) {
 				fmt.Println(err.Error())
 			}
 			fmt.Println("clear end")
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 10)
 		}
 		time.Sleep(time.Second * 1)
 	}
