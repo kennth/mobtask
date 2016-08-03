@@ -69,7 +69,7 @@ func keepActivityClean(id int) {
 			if i+1 > endphone {
 				nextphone = "E3CD20" + strconv.Itoa(int(startphone))
 			} else {
-				phoneid = "E3CD20" + strconv.Itoa(int(i+1))
+				nextphone = "E3CD20" + strconv.Itoa(int(i+1))
 			}
 			fmt.Println("start:" + nextphone)
 			f, err := exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am start -n "+activity).Output()
