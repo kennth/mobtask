@@ -28,9 +28,86 @@ func main() {
 		updatehook(*id)
 	case *cmd == 2:
 		getHOOKActivity()
+	case *cmd == 8:
+		keepActivityClean(*id)
 	case *cmd == 9:
 		keepActivityAlive(*id)
 	}
+}
+
+func keepActivityClean(id int) {
+	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
+	CheckErr(err)
+	sql := "select worker,activity,hook from tcmcctask where status>-9 and id=" + strconv.Itoa(id)
+	fmt.Println(sql)
+	rows, err := db.Query(sql)
+	CheckErr(err)
+	var activity string
+	var worker string
+	var hook string
+	var startphone int64
+	var endphone int64
+	var phoneid string
+	var nextphone string
+	var packname string
+	if rows.Next() {
+		err = rows.Scan(&worker, &activity, &hook)
+		CheckErr(err)
+		phoneid = worker[0:strings.Index(worker, " ")]
+		startphone, err = strconv.ParseInt(phoneid, 10, 0)
+		phoneid = worker[strings.Index(worker, " ")+1:]
+		endphone, err = strconv.ParseInt(phoneid, 10, 0)
+		packname = activity[0:strings.Index(activity, "/")]
+	} else {
+		fmt.Printf("%d is not exsits!", id)
+		return
+	}
+	db.Close()
+	for {
+		for i := startphone; i <= endphone; i++ {
+			phoneid = "E3CD20" + strconv.Itoa(int(i))
+			if i+1 > endphone {
+				nextphone = "E3CD20" + strconv.Itoa(int(startphone))
+			} else {
+				phoneid = "E3CD20" + strconv.Itoa(int(i+1))
+			}
+			f, err := exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am start -n "+activity).Output()
+			if err == nil {
+				fmt.Println(string(f))
+			} else {
+				fmt.Println(err.Error())
+				f, err = exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am start -n "+activity).Output()
+				if err == nil {
+					fmt.Println(string(f))
+				} else {
+					fmt.Println(err.Error())
+				}
+			}
+
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
+			if err == nil {
+				fmt.Println(string(f))
+			} else {
+				fmt.Println(err.Error())
+			}
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
+			if err == nil {
+				fmt.Println(string(f))
+			} else {
+				fmt.Println(err.Error())
+			}
+			time.Sleep(time.Second * 1)
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/com.sg.hlw.vivo/files/c_data_store.dat").Output()
+			if err == nil {
+				fmt.Println(string(f))
+			} else {
+				fmt.Println(err.Error())
+			}
+			time.Sleep(time.Second * 5)
+		}
+		time.Sleep(time.Second * 1)
+	}
+
 }
 
 func keepActivityAlive(id int) {
