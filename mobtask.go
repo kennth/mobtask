@@ -98,7 +98,8 @@ func keepActivityClean(id int) {
 				fmt.Println(err.Error())
 			}
 			time.Sleep(time.Second * 1)
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/"+packname+"files/c_data_store.dat").Output()
+			fmt.Println("adb -s " + phoneid + " shell rm -f /data/data/" + packname + "/files/c_data_store.dat")
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/"+packname+"/files/c_data_store.dat").Output()
 			if err == nil {
 				fmt.Println(string(f))
 			} else {
