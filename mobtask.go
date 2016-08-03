@@ -41,6 +41,7 @@ func keepActivityAlive(id int) {
 	rows, err := db.Query(sql)
 	CheckErr(err)
 	var activity string
+	var hookactivity string
 	var worker string
 	var hook string
 	var curactivity string
@@ -60,11 +61,9 @@ func keepActivityAlive(id int) {
 		endphone, err = strconv.ParseInt(phoneid, 10, 0)
 		packname = activity[0:strings.Index(activity, "/")]
 		if len(hook) == 0 {
-			mainact = activity[strings.Index(activity, "/")+1:]
-		} else if strings.Index(hook, ".") == 1 {
-			mainact = packname + hook
+			hookactivity = activity
 		} else {
-			mainact = hook
+			hookactivity = packname + "/" + hook
 		}
 	}
 	db.Close()
@@ -74,14 +73,14 @@ func keepActivityAlive(id int) {
 		if time.Now().Sub(t).Seconds() >= wait {
 			for i := startphone; i <= endphone; i++ {
 				phoneid = "E3CD20" + strconv.Itoa(int(i))
-				f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell dumpsys activity | grep \"mFocusedActivity\"").Output()
+				f, geterr := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell dumpsys activity | grep \"mFocusedActivity\"").Output()
 				//CheckErr(err)
-				if err == nil {
+				if geterr == nil {
 					curactivity = string(f)
-					curhook = curactivity[strings.Index(curactivity, "/")+1 : len(curactivity)-3]
+					//curhook = curactivity[strings.Index(curactivity, "/")+1 : len(curactivity)-3]
 					//fmt.Println("adb -s " + phoneid + " shell am start -n " + activity)
-					if !strings.EqualFold(curhook, mainact) {
-						fmt.Println(phoneid + ":" + curhook + " || " + mainact)
+					if !strings.EqualFold(curactivity, activity) && !strings.EqualFold(curactivity, hookactivity) {
+						fmt.Println(phoneid + ":" + curactivity + " || " + activity + " || " + hookactivity)
 						f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
 						if err == nil {
 							fmt.Println(string(f))
@@ -99,6 +98,9 @@ func keepActivityAlive(id int) {
 						//fmt.Println(phoneid + ":" + mainact + " is on top!")
 						wait = wait + 1
 					}
+				} else {
+					wait = wait + 1
+					fmt.Println(geterr.Error())
 				}
 			}
 			t = time.Now()
