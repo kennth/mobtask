@@ -71,6 +71,7 @@ func keepActivityClean(id int) {
 			} else {
 				phoneid = "E3CD20" + strconv.Itoa(int(i+1))
 			}
+			fmt.Println("start:" + nextphone)
 			f, err := exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am start -n "+activity).Output()
 			if err == nil {
 				fmt.Println(string(f))
@@ -83,7 +84,7 @@ func keepActivityClean(id int) {
 					fmt.Println(err.Error())
 				}
 			}
-
+			fmt.Println("clear:" + phoneid)
 			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
 			if err == nil {
 				fmt.Println(string(f))
@@ -103,6 +104,7 @@ func keepActivityClean(id int) {
 			} else {
 				fmt.Println(err.Error())
 			}
+			fmt.Println("clear end")
 			time.Sleep(time.Second * 5)
 		}
 		time.Sleep(time.Second * 1)
