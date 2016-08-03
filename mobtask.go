@@ -63,6 +63,9 @@ func keepActivityAlive(id int) {
 		} else {
 			hookactivity = packname + "/" + hook
 		}
+	} else {
+		fmt.Printf("%d is not exsits!", id)
+		return
 	}
 	db.Close()
 	t := time.Now()
