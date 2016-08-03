@@ -103,8 +103,18 @@ func keepActivityClean(id int) {
 			} else {
 				fmt.Println(err.Error())
 			}
-			time.Sleep(time.Second * 1)
-
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/"+packname+"/files/c_data_store.dat").Output()
+			if err == nil {
+				fmt.Println(string(f))
+			} else {
+				fmt.Println(err.Error())
+			}
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/"+packname+"/files/d_data_store.dat").Output()
+			if err == nil {
+				fmt.Println(string(f))
+			} else {
+				fmt.Println(err.Error())
+			}
 			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
 			if err == nil {
 				fmt.Println(string(f))
@@ -118,13 +128,13 @@ func keepActivityClean(id int) {
 				}
 			}
 			time.Sleep(time.Second * 3)
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am force-stop "+packname).Output()
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
 			if err == nil {
 				fmt.Println(string(f))
 			} else {
 				fmt.Println(err.Error())
 			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am force-stop "+packname).Output()
+			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
 			if err == nil {
 				fmt.Println(string(f))
 			} else {
