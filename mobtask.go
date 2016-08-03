@@ -45,11 +45,9 @@ func keepActivityAlive(id int) {
 	var worker string
 	var hook string
 	var curactivity string
-	var curhook string
 	var startphone int64
 	var endphone int64
 	var phoneid string
-	var mainact string
 	var packname string
 	var wait float64
 	if rows.Next() {
