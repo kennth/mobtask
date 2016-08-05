@@ -193,7 +193,9 @@ func keepActivityAlive(id int) {
 				//CheckErr(err)
 				if geterr == nil {
 					curactivity = string(f)
-					curactivity = curactivity[strings.Index(curactivity, packname) : len(curactivity)-3]
+					if curactivity != null && len(curactivity) > 5 {
+						curactivity = curactivity[strings.Index(curactivity, packname) : len(curactivity)-3]
+					}
 					//fmt.Println("adb -s " + phoneid + " shell am start -n " + activity)
 					if !strings.EqualFold(curactivity, activity) && !strings.EqualFold(curactivity, hookactivity) {
 						fmt.Println(phoneid + ":" + curactivity + " || " + activity + " || " + hookactivity)
