@@ -151,7 +151,7 @@ func keepActivityClean(id int) {
 func keepActivityAlive(id int) {
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
-	sql := "select worker,activity,hook from tcmcctask where status>-9 and id=" + strconv.Itoa(id)
+	sql := "select worker,activity,hook from tcmcctask where status=1 and id=" + strconv.Itoa(id)
 	fmt.Println(sql)
 	rows, err := db.Query(sql)
 	CheckErr(err)
@@ -225,7 +225,7 @@ func keepActivityAlive(id int) {
 			if wait > 5 {
 				wait = 60
 			} else {
-				wait = 1
+				wait = 10
 			}
 			fmt.Printf("%d : %ds || %s\n", id, int(wait), t)
 		}
@@ -274,7 +274,7 @@ func getHOOKActivity() {
 func updatehook(id int) {
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
-	sql := "select worker,activity,hook from tcmcctask where status>=0 and id=" + strconv.Itoa(id)
+	sql := "select worker,activity,hook from tcmcctask where id=" + strconv.Itoa(id)
 	fmt.Println(sql)
 	rows, err := db.Query(sql)
 	CheckErr(err)
@@ -306,7 +306,7 @@ func genRunScript() {
 	id := GetHostID() - 5
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
-	sql := "select worker,activity from tcmcctask where status>-9 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " order by id"
+	sql := "select worker,activity from tcmcctask where status>-9 and status<2 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " order by id"
 	fmt.Println(sql)
 	rows, err := db.Query(sql)
 	CheckErr(err)
