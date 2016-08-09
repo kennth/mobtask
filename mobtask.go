@@ -34,7 +34,7 @@ func main() {
 	}
 }
 
-func execCMD(string cmd) {
+func execCMD(cmd string) {
 	f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
 	if err == nil {
 		fmt.Println(string(f))
@@ -43,11 +43,11 @@ func execCMD(string cmd) {
 	}
 }
 
-func stopActivity(string phoneid, string packname) {
+func stopActivity(phoneid string, packname string) {
 	execCMD("adb -s " + phoneid + " shell am force-stop " + packname)
 }
 
-func startActivity(string phoneid, string activity) {
+func startActivity(phoneid string, activity string) {
 	execCMD("adb -s " + phoneid + " shell am start -n " + activity)
 }
 
