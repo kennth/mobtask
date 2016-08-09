@@ -72,7 +72,7 @@ func resetWorker() {
 		case 2:
 			if live < 2 || tasks > 50 {
 				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
-				execCMD("ra" + strconv.Itoa(taskid) + ".sh")
+				execCMD("restartapp.sh " + worker + " " + activity)
 			}
 		case 1:
 			if live < 2 || tasks > 50 {
