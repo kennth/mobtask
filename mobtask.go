@@ -70,7 +70,7 @@ func resetWorker() {
 		CheckErr(err)
 		switch status {
 		case 2:
-			if live < 2 && tasks > 50 {
+			if live < 2 || tasks > 50 {
 				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
 				execCMD("ra" + strconv.Itoa(taskid) + ".sh")
 			}
