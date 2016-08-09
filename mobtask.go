@@ -35,7 +35,7 @@ func main() {
 }
 
 func execCMD(cmd string) {
-	f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
+	f, err := exec.Command("/bin/sh", "-c", cmd).Output()
 	if err == nil {
 		fmt.Println(string(f))
 	} else {
