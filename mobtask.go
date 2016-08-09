@@ -34,7 +34,7 @@ func main() {
 	}
 }
 
-func execCMD(cmd string) {
+func execCMD(string cmd) {
 	f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
 	if err == nil {
 		fmt.Println(string(f))
@@ -43,11 +43,11 @@ func execCMD(cmd string) {
 	}
 }
 
-func stopActivity(phoneid string, packname string) {
+func stopActivity(string phoneid, string packname) {
 	execCMD("adb -s " + phoneid + " shell am force-stop " + packname)
 }
 
-func startActivity(phoneid string, activity string) {
+func startActivity(string phoneid, string activity) {
 	execCMD("adb -s " + phoneid + " shell am start -n " + activity)
 }
 
@@ -66,13 +66,13 @@ func resetWorker() {
 		var live int
 		var status int
 		var tasks int
-		err = rows.Scan(&worker, &activity, &taskid, &live)
+		err = rows.Scan(&worker, &activity, &taskid, &live, &status, &tasks)
 		CheckErr(err)
 		switch status {
 		case 2:
 			if live < 2 && tasks > 50 {
 				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
-				execCMD("ra" + taskid + ".sh")
+				execCMD("ra" + strconv.Itoa(taskid) + ".sh")
 			}
 		case 1:
 			if live < 2 || tasks > 50 {
