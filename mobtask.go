@@ -20,7 +20,6 @@ func main() {
 	//fmt.Println(*id)
 	switch {
 	case *cmd == -1:
-
 		fmt.Printf("%s", time.Now())
 	case *cmd == 0:
 		genRunScript()
@@ -29,122 +28,60 @@ func main() {
 	case *cmd == 2:
 		getHOOKActivity()
 	case *cmd == 8:
-		keepActivityClean(*id)
+		resetWorker()
 	case *cmd == 9:
 		keepActivityAlive(*id)
 	}
 }
 
-func keepActivityClean(id int) {
+func execCMD(cmd string) {
+	f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
+	if err == nil {
+		fmt.Println(string(f))
+	} else {
+		fmt.Println(err.Error())
+	}
+}
+
+func stopActivity(phoneid string, packname string) {
+	execCMD("adb -s " + phoneid + " shell am force-stop " + packname)
+}
+
+func startActivity(phoneid string, activity string) {
+	execCMD("adb -s " + phoneid + " shell am start -n " + activity)
+}
+
+func resetWorker() {
+	id := GetHostID() - 5
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
-	sql := "select worker,activity,hook from tcmcctask where status>-9 and id=" + strconv.Itoa(id)
+	sql := "select worker,activity,id,status,live,tasks from tcmcctask where status>0 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " order by id"
 	fmt.Println(sql)
 	rows, err := db.Query(sql)
 	CheckErr(err)
-	var activity string
-	var worker string
-	var hook string
-	var startphone int64
-	var endphone int64
-	var phoneid string
-	var nextphone string
-	var packname string
-	if rows.Next() {
-		err = rows.Scan(&worker, &activity, &hook)
+	for rows.Next() {
+		var activity string
+		var worker string
+		var taskid int
+		var live int
+		var status int
+		var tasks int
+		err = rows.Scan(&worker, &activity, &taskid, &live)
 		CheckErr(err)
-		phoneid = worker[0:strings.Index(worker, " ")]
-		startphone, err = strconv.ParseInt(phoneid, 10, 0)
-		phoneid = worker[strings.Index(worker, " ")+1:]
-		endphone, err = strconv.ParseInt(phoneid, 10, 0)
-		packname = activity[0:strings.Index(activity, "/")]
-	} else {
-		fmt.Printf("%d is not exsits!", id)
-		return
+		switch status {
+		case 2:
+			if live < 2 && tasks > 50 {
+				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
+				execCMD("ra" + taskid + ".sh")
+			}
+		case 1:
+			if live < 2 || tasks > 50 {
+				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
+				execCMD("restartapp.sh " + worker + " " + activity)
+			}
+		}
 	}
 	db.Close()
-	for {
-		for i := startphone; i <= endphone; i++ {
-			phoneid = "E3CD20" + strconv.Itoa(int(i))
-			if i+1 > endphone {
-				nextphone = "E3CD20" + strconv.Itoa(int(startphone))
-			} else {
-				nextphone = "E3CD20" + strconv.Itoa(int(i+1))
-			}
-			fmt.Println("start:" + nextphone)
-			f, err := exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am force-stop "+packname).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am start -n "+activity).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-				f, err = exec.Command("/bin/sh", "-c", "adb -s "+nextphone+" shell am start -n "+activity).Output()
-				if err == nil {
-					fmt.Println(string(f))
-				} else {
-					fmt.Println(err.Error())
-				}
-			}
-			fmt.Println("clear:" + phoneid)
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/"+packname+"/files/c_data_store.dat").Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell rm -f /data/data/"+packname+"/files/d_data_store.dat").Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-				f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am start -n "+activity).Output()
-				if err == nil {
-					fmt.Println(string(f))
-				} else {
-					fmt.Println(err.Error())
-				}
-			}
-			time.Sleep(time.Second * 3)
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			f, err = exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell am force-stop "+packname).Output()
-			if err == nil {
-				fmt.Println(string(f))
-			} else {
-				fmt.Println(err.Error())
-			}
-			fmt.Println("clear end")
-			time.Sleep(time.Second * 10)
-		}
-		time.Sleep(time.Second * 1)
-	}
 
 }
 
