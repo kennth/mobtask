@@ -88,7 +88,7 @@ func resetWorker() {
 			}
 		}
 		fmt.Println("Wait for next check!")
-		time.Sleep(10)
+		time.Sleep(time.Second * 30)
 	}
 	db.Close()
 }
