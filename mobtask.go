@@ -55,34 +55,42 @@ func resetWorker() {
 	id := GetHostID() - 5
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
-	sql := "select worker,activity,id,status,live,tasks from tcmcctask where status>0 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " order by id"
-	fmt.Println(sql)
-	rows, err := db.Query(sql)
-	CheckErr(err)
-	for rows.Next() {
-		var activity string
-		var worker string
-		var taskid int
-		var live int
-		var status int
-		var tasks int
-		err = rows.Scan(&worker, &activity, &taskid, &live, &status, &tasks)
+	sql := "select worker,activity,id,status,live,tasks,running from tcmcctask where now()-interval 5 minute>lastrestart and lastupdate>now() - interval 5 minute"
+	sql += " and status>0 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " and id < 100 order by id"
+	fmt.Println(sql) //restart again mast after 5 minute
+	for {
+		rows, err := db.Query(sql)
 		CheckErr(err)
-		switch status {
-		case 2:
-			if live < 2 || tasks > 50 {
-				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
-				execCMD("restartapp.sh " + worker + " " + activity)
+		for rows.Next() {
+			var activity string
+			var worker string
+			var taskid int
+			var live int
+			var status int
+			var tasks int
+			var running int
+			err = rows.Scan(&worker, &activity, &taskid, &live, &status, &tasks, &running)
+			CheckErr(err)
+			if running == tasks {
+				live = live - running
 			}
-		case 1:
-			if live < 2 || tasks > 50 {
-				fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker", taskid, worker, tasks, live)
-				execCMD("restartapp.sh " + worker + " " + activity)
+			switch status {
+			case 2:
+				if (live < 2 && tasks > 10) || tasks > 50 {
+					fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker\n", taskid, worker, tasks, live)
+					execCMD("restartapp.sh " + worker + " " + activity)
+				}
+			case 1:
+				if (live < 2 && tasks > 10) || tasks > 50 {
+					fmt.Printf("%d %s WAIT:%d LIVE:%d do resetWorker\n", taskid, worker, tasks, live)
+					execCMD("restartapp.sh " + worker + " " + activity)
+				}
 			}
 		}
+		fmt.Println("Wait for next check!")
+		time.Sleep(10)
 	}
 	db.Close()
-
 }
 
 func keepActivityAlive(id int) {
