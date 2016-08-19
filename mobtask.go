@@ -27,7 +27,7 @@ func main() {
 		updatehook(*id)
 	case *cmd == 2:
 		getHOOKActivity()
-	case *cmd == 0:
+	case *cmd == 3:
 		genReRunScript()
 	case *cmd == 8:
 		resetWorker()
