@@ -277,7 +277,7 @@ func genReRunScript() {
 	id := GetHostID() - 5
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
-	sql := "select worker,activity from tcmcctask where status>-9 and status<=2 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " order by id"
+	sql := "select worker,activity from tcmcctask where id<100 and status>-9 and status<=2 and id>" + strconv.Itoa(id*12) + " and id<=" + strconv.Itoa((id+1)*12) + " order by id"
 	fmt.Println(sql)
 	rows, err := db.Query(sql)
 	CheckErr(err)
