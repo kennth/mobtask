@@ -286,7 +286,7 @@ func genReRunScript() {
 		var worker string
 		err = rows.Scan(&worker, &activity)
 		CheckErr(err)
-		fmt.Println("./restartapp.sh " + worker + " " + activity + " >> rerun.log &")
+		fmt.Println("./restartapp.sh " + worker + " " + activity)
 	}
 	db.Close()
 
