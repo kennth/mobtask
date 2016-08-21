@@ -29,6 +29,8 @@ func main() {
 		getHOOKActivity()
 	case *cmd == 3:
 		genReRunScript()
+	case *cmd == 4:
+		getMAC()
 	case *cmd == 8:
 		resetWorker()
 	case *cmd == 9:
@@ -246,6 +248,29 @@ func updatehook(id int) {
 	}
 	db.Close()
 
+	fmt.Println("done!")
+}
+
+func getMAC() {
+	id := GetHostID() - 5
+	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
+	CheckErr(err)
+	stmt, err := db.Prepare("UPDATE tdevice SET mac = ? WHERE id=?")
+	CheckErr(err)
+	startphone := 301 + id*60
+	var mac string
+	for i := startphone; i < startphone+60; i++ {
+		phoneid = "E3CD20" + i
+		f, err := exec.Command("/bin/sh", "-c", "adb -s "+strconv.Itoa(i)+" shell cat /sys/class/net/wlan0/address").Output()
+		//CheckErr(err)
+		if err == nil {
+			mac = string(f)
+			fmt.Println(mac)
+			_, err := stmt.Exec(mac, i)
+			CheckErr(err)
+		}
+	}
+	db.Close()
 	fmt.Println("done!")
 }
 
