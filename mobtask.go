@@ -258,10 +258,12 @@ func getMAC() {
 	stmt, err := db.Prepare("UPDATE tdevice SET mac = ? WHERE id=?")
 	CheckErr(err)
 	startphone := 301 + id*60
+	endphone := startphone + 60
 	var mac string
-	for i := startphone; i < startphone+60; i++ {
-		phoneid = "E3CD20" + i
-		f, err := exec.Command("/bin/sh", "-c", "adb -s "+strconv.Itoa(i)+" shell cat /sys/class/net/wlan0/address").Output()
+	var phoneid string
+	for i := startphone; i < endphone; i++ {
+		phoneid = "E3CD20" + strconv.Itoa(i)
+		f, err := exec.Command("/bin/sh", "-c", "adb -s "+phoneid+" shell cat /sys/class/net/wlan0/address").Output()
 		//CheckErr(err)
 		if err == nil {
 			mac = string(f)
