@@ -57,7 +57,7 @@ func startActivity(phoneid string, activity string) {
 	execCMD("adb -s " + phoneid + " shell am start -n " + activity)
 }
 
-func restartWork(id int) {
+func restartWorker(id int) {
 	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
 	CheckErr(err)
 	sql := "select worker,activity from tcmcctask where id=" + strconv.Itoa(id)
