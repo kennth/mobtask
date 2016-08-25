@@ -31,6 +31,8 @@ func main() {
 		genReRunScript()
 	case *cmd == 4:
 		getMAC()
+	case *cmd == 7:
+		restartWorker(*id)
 	case *cmd == 8:
 		resetWorker()
 	case *cmd == 9:
@@ -53,6 +55,23 @@ func stopActivity(phoneid string, packname string) {
 
 func startActivity(phoneid string, activity string) {
 	execCMD("adb -s " + phoneid + " shell am start -n " + activity)
+}
+
+func restartWork(id int) {
+	db, err := sql.Open("mysql", "root:funmix@tcp(192.168.99.10:3306)/helper?charset=utf8")
+	CheckErr(err)
+	sql := "select worker,activity from tcmcctask where id=" + strconv.Itoa(id)
+	fmt.Println(sql) //restart again mast after 5 minute
+	rows, err := db.Query(sql)
+	CheckErr(err)
+	if rows.Next() {
+		var activity string
+		var worker string
+		err = rows.Scan(&worker, &activity)
+		CheckErr(err)
+		execCMD("restartapp.sh " + worker + " " + activity)
+	}
+	db.Close()
 }
 
 func resetWorker() {
